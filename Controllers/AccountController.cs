@@ -7,6 +7,7 @@ namespace GalleryCafe.Controllers;
 
 public class AccountController(SignInManager<AppUser> signInManager, UserManager<AppUser> userManager) : Controller
 {
+    [HttpGet]
     public IActionResult Login(string? returnUrl = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
@@ -32,6 +33,7 @@ public class AccountController(SignInManager<AppUser> signInManager, UserManager
         return View(model);
     }
 
+    [HttpGet]
     public IActionResult Register(string? returnUrl = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
@@ -56,10 +58,25 @@ public class AccountController(SignInManager<AppUser> signInManager, UserManager
 
             if (result.Succeeded)
             {
+                // Assign roles based on email
+                if (user.Email == "admin@email.com")
+                {
+                    await userManager.AddToRoleAsync(user, "Admin");
+                }
+                else if (user.Email == "staff@email.com")
+                {
+                    await userManager.AddToRoleAsync(user, "Staff");
+                }
+                else
+                {
+                    await userManager.AddToRoleAsync(user, "Customer");
+                }
+
                 await signInManager.SignInAsync(user, false);
 
-                return RedirectToLocal(returnUrl);
+                return RedirectToAction("Index", "Home");
             }
+            
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError("", error.Description);
@@ -71,7 +88,7 @@ public class AccountController(SignInManager<AppUser> signInManager, UserManager
     public async Task<IActionResult> Logout()
     {
         await signInManager.SignOutAsync();
-        return RedirectToAction("Index","Home");
+        return RedirectToAction("Index", "Home");
     }
 
     private IActionResult RedirectToLocal(string? returnUrl)

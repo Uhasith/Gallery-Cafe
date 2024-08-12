@@ -23,13 +23,25 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(
     })
     .AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
 
+// Add RoleManager service
+builder.Services.AddScoped<RoleManager<IdentityRole>>();
+
 var app = builder.Build();
+
+// Ensure roles are created on startup
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    // Call method to create roles
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    await EnsureRolesAsync(roleManager);
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -45,3 +57,17 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+// Method to create roles
+async Task EnsureRolesAsync(RoleManager<IdentityRole> roleManager)
+{
+    string[] roleNames = { "Admin", "Staff", "Customer" };
+
+    foreach (var roleName in roleNames)
+    {
+        if (!await roleManager.RoleExistsAsync(roleName))
+        {
+            await roleManager.CreateAsync(new IdentityRole(roleName));
+        }
+    }
+}

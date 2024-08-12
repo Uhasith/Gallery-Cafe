@@ -2,7 +2,60 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="bg-image">
+    <!-- Highlights Section -->
+    <div>
+        <div class="text-center mb-5">
+            <h1 class="display-4 text-info">Welcome to The Gallery Café</h1>
+            <p class="lead text-info">Experience exquisite meals and exclusive promotions at our cozy café.</p>
+        </div>
+
+        <div class="row text-center">
+            <!-- Meal Types -->
+            <div class="col-md-4 mb-4 d-flex flex-column">
+                <h2 class="text-warning">Our Meal Types</h2>
+                <p class="text-white">Explore our wide range of meals.</p>
+                <div class="d-flex gap-4 align-items-center justify-content-center text-white">
+                    <p>🍳 Breakfast</p>
+                    <p>🥗 Lunch</p>
+                    <p>🍝 Dinner</p>
+                </div>
+                <div class="mt-auto">
+                    <a href="@Url.Action("Index", "Menu")" class="btn btn-primary">View Menu</a>
+                </div>
+            </div>
+
+            <!-- Special Promotions -->
+            <div class="col-md-4 mb-4 d-flex flex-column text-white">
+                <h2 class="text-warning">Special Promotions</h2>
+                <p>Don't miss out on our exclusive deals and offers!</p>
+                <ul class="list-unstyled">
+                    <li>Summer Special: 50% off desserts</li>
+                    <li>Happy Hour: Buy 1 Get 1 Free on cocktails</li>
+                </ul>
+                <div class="mt-auto">
+                    <a href="/Promotions" class="btn btn-success">View Promotions</a>
+                </div>
+            </div>
+
+            <!-- Upcoming Events -->
+            <div class="col-md-4 mb-4 d-flex flex-column text-white">
+                <h2 class="text-warning">Upcoming Events</h2>
+                <p>Join us for exciting events happening this season.</p>
+                <ul class="list-unstyled">
+                    <li>Live Jazz Night - Every Friday</li>
+                    <li>Wine Tasting - First Saturday of every month</li>
+                </ul>
+                <div class="mt-auto">
+                    <button class="btn btn-info">Coming Soon...</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call-to-Action Buttons -->
+    <div class="text-center mt-5">
+        <a href="@Url.Action("Create", "Reservation")" class="btn btn-lg btn-danger mr-4">Reserve a Table</a>
+        <a href="/Menu" class="btn btn-lg btn-warning">View Our Menu</a>
+    </div>
 </div>
