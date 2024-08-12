@@ -20,13 +20,13 @@ namespace GalleryCafe.Controllers
         {
 
             ViewBag.Tables = await _context.Tables
-        .Where(t => t.IsAvailable)
-        .Select(t => new
-        {
-            t.Id,
-            DisplayText = "Table " + t.Id + " (Seats " + t.Capacity + ")"
-        })
-        .ToListAsync();
+                .Where(t => t.IsAvailable)
+                .Select(t => new
+                {
+                    t.Id,
+                    DisplayText = "Table " + t.Id + " (Seats " + t.Capacity + ")"
+                })
+                .ToListAsync();
 
             ViewBag.ParkingSpots = await _context.ParkingSpots
                 .Where(p => p.IsAvailable)
@@ -40,60 +40,71 @@ namespace GalleryCafe.Controllers
             return View();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(Reservation reservation)
+        private async Task PopulateViewBags()
         {
+            ViewBag.Tables = await _context.Tables
+                .Where(t => t.IsAvailable)
+                .Select(t => new { t.Id, DisplayText = "Table " + t.Id + " (Seats " + t.Capacity + ")" })
+                .ToListAsync();
+
+            ViewBag.ParkingSpots = await _context.ParkingSpots
+                .Where(p => p.IsAvailable)
+                .Select(p => new { p.Id, DisplayText = "Slot " + p.Id })
+                .ToListAsync();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(Reservation reservation, string? returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+
+            var table = await _context.Tables.FindAsync(reservation.TableId);
+            var parkingSpot = reservation.ParkingSpotId.HasValue
+                ? await _context.ParkingSpots.FindAsync(reservation.ParkingSpotId.Value)
+                : null;
+
+            if (table != null)
+            {
+                reservation.Table = table;
+            }
+
+            if (parkingSpot != null)
+            {
+                reservation.ParkingSpot = parkingSpot;
+            }
+
             if (ModelState.IsValid)
             {
-                var table = await _context.Tables.FindAsync(reservation.TableId);
-                var parkingSpot = reservation.ParkingSpotId.HasValue
-                    ? await _context.ParkingSpots.FindAsync(reservation.ParkingSpotId.Value)
-                    : null;
-
-                if (table != null)
-                {
-                    table.IsAvailable = false;
-                    reservation.Table = table;
-                }
-
+                table.IsAvailable = false;
                 if (parkingSpot != null)
                 {
                     parkingSpot.IsAvailable = false;
-                    reservation.ParkingSpot = parkingSpot;
                 }
 
                 _context.Reservations.Add(reservation);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction("Confirmation", new { id = reservation.Id });
+                TempData["SuccessMessage"] = "Your reservation has been successfully made!";
+                return RedirectToLocal(returnUrl);
             }
 
-            ViewBag.Tables = await _context.Tables
-                .Where(t => t.IsAvailable)
-                .Select(t => new { t.Id, t.Capacity })
-                .ToListAsync();
-
-            ViewBag.ParkingSpots = await _context.ParkingSpots
-                .Where(p => p.IsAvailable)
-                .Select(p => new { p.Id })
-                .ToListAsync();
-
-            return View(reservation);
-        }
-
-        public async Task<IActionResult> Confirmation(int id)
-        {
-            var reservation = await _context.Reservations
-                .Include(r => r.Table)
-                .Include(r => r.ParkingSpot)
-                .FirstOrDefaultAsync(r => r.Id == id);
-
-            if (reservation == null)
+            // If ModelState is invalid, log errors to the console
+            var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+            foreach (var error in errors)
             {
-                return NotFound();
+                Console.WriteLine($"ModelState Error: {error}");
             }
 
+            await PopulateViewBags();
             return View(reservation);
         }
+
+        private IActionResult RedirectToLocal(string? returnUrl)
+        {
+            return !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl)
+                ? Redirect(returnUrl)
+                : RedirectToAction(nameof(Create));
+        }
+
     }
 }

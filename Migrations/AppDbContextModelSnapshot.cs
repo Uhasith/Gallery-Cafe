@@ -480,18 +480,18 @@ namespace GalleryCafe.Migrations
                         {
                             Id = 1,
                             Description = "50% off on all desserts",
-                            EndDate = new DateTime(2024, 9, 12, 10, 12, 3, 617, DateTimeKind.Local).AddTicks(4200),
+                            EndDate = new DateTime(2024, 9, 12, 21, 55, 17, 280, DateTimeKind.Local).AddTicks(810),
                             ImageUrl = "/images/summer_special.jpg",
-                            StartDate = new DateTime(2024, 8, 12, 10, 12, 3, 617, DateTimeKind.Local).AddTicks(4160),
+                            StartDate = new DateTime(2024, 8, 12, 21, 55, 17, 280, DateTimeKind.Local).AddTicks(790),
                             Title = "Summer Special"
                         },
                         new
                         {
                             Id = 2,
                             Description = "Buy 1 Get 1 Free on cocktails",
-                            EndDate = new DateTime(2024, 9, 12, 10, 12, 3, 617, DateTimeKind.Local).AddTicks(4210),
+                            EndDate = new DateTime(2024, 9, 12, 21, 55, 17, 280, DateTimeKind.Local).AddTicks(810),
                             ImageUrl = "/images/happy_hour.jpg",
-                            StartDate = new DateTime(2024, 8, 12, 10, 12, 3, 617, DateTimeKind.Local).AddTicks(4210),
+                            StartDate = new DateTime(2024, 8, 12, 21, 55, 17, 280, DateTimeKind.Local).AddTicks(810),
                             Title = "Happy Hour"
                         });
                 });
@@ -515,27 +515,11 @@ namespace GalleryCafe.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<bool>("NeedsParking")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<int>("NumberOfGuests")
-                        .HasColumnType("int");
-
                     b.Property<int?>("ParkingSpotId")
                         .HasColumnType("int");
 
-                    b.Property<string>("SpecialRequests")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("TableCapacity")
+                    b.Property<int>("TableId")
                         .HasColumnType("int");
-
-                    b.Property<int?>("TableId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Time")
-                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
@@ -778,7 +762,9 @@ namespace GalleryCafe.Migrations
 
                     b.HasOne("GalleryCafe.Models.Table", "Table")
                         .WithMany()
-                        .HasForeignKey("TableId");
+                        .HasForeignKey("TableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("ParkingSpot");
 

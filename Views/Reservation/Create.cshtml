@@ -1,53 +1,78 @@
 ﻿@model GalleryCafe.Models.Reservation
 
-<div class="container mt-2">
-    <h1 class="text-center">Make a Reservation</h1>
+@{
+    ViewData["Title"] = "Make a Reservation";
+}
 
-    @using (Html.BeginForm())
-    {
-        <div class="d-flex flex-column max-w-md mx-auto" style="max-width: 50vw;">
-            <div class="form-group">
-                <label for="CustomerName">Name</label>
-                <input type="text" class="form-control" id="CustomerName" asp-for="CustomerName" required />
+<div class="row d-flex align-items-center justify-content-center mt-5" style="max-width: 100vw;">
+    <div class="col-md-6 card p-4">
+        <h2 class="text-center text-info">Make a Reservation</h2>
+        <form asp-action="Create" method="post" asp-route-returnurl="@ViewData["ReturnUrl"]">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="row">
+                <!-- First Row: Name and Email -->
+                <div class="col-md-6 mb-3">
+                    <label asp-for="CustomerName" class="control-label">Customer Name</label>
+                    <input asp-for="CustomerName" class="form-control" />
+                    <span asp-validation-for="CustomerName" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="CustomerEmail" class="control-label">Customer Email</label>
+                    <input asp-for="CustomerEmail" class="form-control" />
+                    <span asp-validation-for="CustomerEmail" class="text-danger"></span>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="CustomerEmail">Email</label>
-                <input type="email" class="form-control" id="CustomerEmail" asp-for="CustomerEmail" required />
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Date" class="control-label">Reservation Date</label>
+                    <input asp-for="Date" type="date" class="form-control" />
+                    <span asp-validation-for="Date" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="TableId" class="control-label">Table Number</label>
+                    <select asp-for="TableId" class="form-control"
+                        asp-items="@(new SelectList(ViewBag.Tables, "Id", "DisplayText"))">
+                        <option value="">Select a table</option>
+                    </select>
+                    <span asp-validation-for="TableId" class="text-danger"></span>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="NumberOfGuests">Number of Guests</label>
-                <input type="number" class="form-control" id="NumberOfGuests" asp-for="NumberOfGuests" min="1" required />
+            <div class="row">
+                <!-- Fourth Row: Parking Spot Selection -->
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ParkingSpotId" class="control-label">Parking Slot</label>
+                    <select asp-for="ParkingSpotId" class="form-control"
+                        asp-items="@(new SelectList(ViewBag.ParkingSpots, "Id", "DisplayText"))">
+                        <option value="">No Parking Spot Needed</option>
+                    </select>
+                    <span asp-validation-for="ParkingSpotId" class="text-danger"></span>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="Date">Date</label>
-                <input type="date" class="form-control" id="Date" asp-for="Date" required />
+            <div class="row">
+                <div class="col-12">
+                    <input type="submit" value="Reserve" class="btn btn-primary btn-sm mt-2 w-100" />
+                </div>
             </div>
-
-            <div class="form-group">
-                <label for="Time">Time</label>
-                <input type="time" class="form-control" id="Time" asp-for="Time" required />
-            </div>
-
-            <div class="form-group mb-3">
-                <label for="TableId">Select a Table</label>
-                <select class="form-control" id="TableId" asp-for="TableId"
-                    asp-items="@(new SelectList(ViewBag.Tables, "Id", "DisplayText"))" required>
-                    <option value="">Select a table</option>
-                </select>
-            </div>
-
-            <div class="form-group mb-4">
-                <label for="ParkingSpotId">Select a Parking Spot (optional)</label>
-                <select class="form-control" id="ParkingSpotId" asp-for="ParkingSpotId"
-                    asp-items="@(new SelectList(ViewBag.ParkingSpots, "Id", "DisplayText"))">
-                    <option value="">No Parking Spot Needed</option>
-                </select>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Reserve</button>
-        </div>
-    }
+        </form>
+    </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
